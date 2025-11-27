@@ -1,413 +1,444 @@
-.container {
-max-width: 900px;
-margin: 0 auto;
-}
-
-.header-bar {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 20px;
-}
-
-h1 {
-color: white;
-text-align: center;
-font-size: 2.5em;
-text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-flex: 1;
-}
-
-.lang-switcher {
-display: flex;
-gap: 5px;
-background: rgba(255, 255, 255, 0.2);
-border-radius: 25px;
-padding: 5px;
-backdrop-filter: blur(10px);
-}
-
-.lang-btn {
-padding: 8px 16px;
-border: none;
-border-radius: 20px;
-cursor: pointer;
-font-weight: bold;
-transition: all 0.3s;
-background: transparent;
-color: white;
-}
-
-.lang-btn.active {
-background: white;
-color: #667eea;
-}
-
-.lang-btn:hover:not(.active) {
-background: rgba(255, 255, 255, 0.1);
-}
-
-.tabs {
-display: flex;
-gap: 10px;
-margin-bottom: 20px;
-background: rgba(255, 255, 255, 0.1);
-border-radius: 15px;
-padding: 5px;
-}
-
-.tab-btn {
-flex: 1;
-padding: 15px;
-border: none;
-border-radius: 10px;
-cursor: pointer;
-font-weight: bold;
-transition: all 0.3s;
-background: transparent;
-color: white;
-font-size: 16px;
-}
-
-.tab-btn.active {
-background: white;
-color: #667eea;
-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.tab-btn:hover:not(.active) {
-background: rgba(255, 255, 255, 0.15);
-}
-
-.tab-content {
-display: none;
-}
-
-.tab-content.active {
-display: block;
-}
-
-.card {
-background: white;
-border-radius: 15px;
-padding: 25px;
-margin-bottom: 20px;
-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.btn {
-width: 100%;
-padding: 15px;
-font-size: 18px;
-font-weight: bold;
-border: none;
-border-radius: 10px;
-cursor: pointer;
-margin: 10px 0;
-transition: all 0.3s;
-}
-
-.btn-primary {
-background: #4CAF50;
-color: white;
-}
-
-.btn-primary:hover {
-background: #45a049;
-transform: translateY(-2px);
-}
-
-.btn-secondary {
-background: #2196F3;
-color: white;
-}
-
-.btn-secondary:hover {
-background: #0b7dda;
-}
-
-.btn:disabled {
-background: #ccc;
-cursor: not-allowed;
-transform: none;
-}
-
-.form-group {
-margin-bottom: 20px;
-}
-
-.form-label {
-display: block;
-margin-bottom: 8px;
-font-weight: bold;
-color: #333;
-}
-
-.form-input,
-.form-textarea,
-.form-select {
-width: 100%;
-padding: 12px;
-border: 2px solid #e0e0e0;
-border-radius: 8px;
-font-size: 16px;
-transition: border 0.3s;
-}
-
-.form-input:focus,
-.form-textarea:focus,
-.form-select:focus {
-outline: none;
-border-color: #667eea;
-}
-
-.form-textarea {
-min-height: 120px;
-resize: vertical;
-font-family: inherit;
-}
-
-.form-hint {
-font-size: 14px;
-color: #666;
-margin-top: 5px;
-}
-
-.proposal-card {
-background: #f8f9fa;
-border: 2px solid #e0e0e0;
-border-radius: 10px;
-padding: 20px;
-margin: 15px 0;
-transition: all 0.3s;
-}
-
-.proposal-card:hover {
-border-color: #667eea;
-box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
-}
-
-.proposal-card.votable {
-border-color: #4CAF50;
-background: #f1f8f4;
-}
-
-.proposal-card.voted {
-border-color: #2e7d32;
-background: #f1f8f4;
-}
-
-.proposal-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 10px;
-}
-
-.proposal-id {
-font-size: 1.2em;
-font-weight: bold;
-color: #667eea;
-}
-
-.status-badge {
-padding: 5px 15px;
-border-radius: 20px;
-font-size: 0.85em;
-font-weight: bold;
-}
-
-.status-voting {
-background: #4CAF50;
-color: white;
-}
-
-.status-passed {
-background: #2196F3;
-color: white;
-}
-
-.status-rejected {
-background: #f44336;
-color: white;
-}
-
-.status-other {
-background: #9e9e9e;
-color: white;
-}
-
-.proposal-title {
-font-size: 1.1em;
-margin: 10px 0;
-color: #333;
-}
-
-.vote-options {
-display: grid;
-grid-template-columns: repeat(4, 1fr);
-gap: 10px;
-margin-top: 15px;
-}
-
-.vote-btn {
-padding: 10px;
-border: none;
-border-radius: 8px;
-cursor: pointer;
-font-weight: bold;
-transition: all 0.3s;
-font-size: 14px;
-}
-
-.vote-yes {
-background: #4CAF50;
-color: white;
-}
-
-.vote-yes:hover:not(:disabled) {
-background: #45a049;
-transform: scale(1.05);
-}
-
-.vote-no {
-background: #f44336;
-color: white;
-}
-
-.vote-no:hover:not(:disabled) {
-background: #da190b;
-transform: scale(1.05);
-}
-
-.vote-abstain {
-background: #ff9800;
-color: white;
-}
-
-.vote-abstain:hover:not(:disabled) {
-background: #e68900;
-transform: scale(1.05);
-}
-
-.vote-veto {
-background: #9c27b0;
-color: white;
-}
-
-.vote-veto:hover:not(:disabled) {
-background: #7b1fa2;
-transform: scale(1.05);
-}
-
-.vote-btn:disabled {
-opacity: 0.5;
-cursor: not-allowed;
-transform: none;
-}
-
-.voted-badge {
-margin-top: 15px;
-padding: 15px;
-background: #e8f5e9;
-border: 2px solid #4CAF50;
-border-radius: 10px;
-}
-
-.voted-badge-header {
-font-weight: bold;
-color: #2e7d32;
-margin-bottom: 8px;
-font-size: 16px;
-}
-
-.voted-badge-option {
-color: #1b5e20;
-font-size: 15px;
-margin: 5px 0;
-}
-
-.voted-badge-tx {
-font-size: 13px;
-color: #666;
-margin-top: 8px;
-}
-
-.wallet-info {
-background: linear-gradient(135deg, #667eea, #764ba2);
-color: white;
-padding: 20px;
-border-radius: 10px;
-margin-bottom: 20px;
-}
-
-.status {
-padding: 15px;
-border-radius: 10px;
-margin: 15px 0;
-line-height: 1.6;
-}
-
-.status-success {
-background: #e8f5e9;
-border-left: 4px solid #4CAF50;
-}
-
-.status-error {
-background: #ffebee;
-border-left: 4px solid #f44336;
-}
-
-.status-info {
-background: #e3f2fd;
-border-left: 4px solid #2196F3;
-}
-
-.loading {
-text-align: center;
-padding: 20px;
-}
-
-.spinner {
-border: 4px solid #f3f3f3;
-border-top: 4px solid #667eea;
-border-radius: 50%;
-width: 40px;
-height: 40px;
-animation: spin 1s linear infinite;
-margin: 0 auto;
-}
-
-@keyframes spin {
-0% {
-transform: rotate(0deg);
-}
-
-100% {
-transform: rotate(360deg);
-}
-}
-
-.network-badge {
-display: inline-block;
-padding: 5px 10px;
-background: #4CAF50;
-color: white;
-border-radius: 5px;
-font-size: 0.85em;
-margin-left: 10px;
-}
-
-.link {
-color: #667eea;
-text-decoration: none;
-font-weight: bold;
-}
-
-.link:hover {
-text-decoration: underline;
-}
-</style>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🗳️ Helios Governance Portal</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-26LJ3MC9RY"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-26LJ3MC9RY');
+    </script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" type="application/javascript"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            flex: 1;
+        }
+
+        .lang-switcher {
+            display: flex;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 5px;
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            background: transparent;
+            color: white;
+        }
+
+        .lang-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .lang-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 5px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            background: transparent;
+            color: white;
+            font-size: 16px;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #0b7dda;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-hint {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .proposal-card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            transition: all 0.3s;
+        }
+
+        .proposal-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .proposal-card.votable {
+            border-color: #4CAF50;
+            background: #f1f8f4;
+        }
+
+        .proposal-card.voted {
+            border-color: #2e7d32;
+            background: #f1f8f4;
+        }
+
+        .proposal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .proposal-id {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .status-voting {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .status-passed {
+            background: #2196F3;
+            color: white;
+        }
+
+        .status-rejected {
+            background: #f44336;
+            color: white;
+        }
+
+        .status-other {
+            background: #9e9e9e;
+            color: white;
+        }
+
+        .proposal-title {
+            font-size: 1.1em;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .vote-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .vote-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .vote-yes {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .vote-yes:hover:not(:disabled) {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+
+        .vote-no {
+            background: #f44336;
+            color: white;
+        }
+
+        .vote-no:hover:not(:disabled) {
+            background: #da190b;
+            transform: scale(1.05);
+        }
+
+        .vote-abstain {
+            background: #ff9800;
+            color: white;
+        }
+
+        .vote-abstain:hover:not(:disabled) {
+            background: #e68900;
+            transform: scale(1.05);
+        }
+
+        .vote-veto {
+            background: #9c27b0;
+            color: white;
+        }
+
+        .vote-veto:hover:not(:disabled) {
+            background: #7b1fa2;
+            transform: scale(1.05);
+        }
+
+        .vote-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .voted-badge {
+            margin-top: 15px;
+            padding: 15px;
+            background: #e8f5e9;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+        }
+
+        .voted-badge-header {
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .voted-badge-option {
+            color: #1b5e20;
+            font-size: 15px;
+            margin: 5px 0;
+        }
+
+        .voted-badge-tx {
+            font-size: 13px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        .wallet-info {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+
+        .status-success {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .status-error {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+
+        .status-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .network-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+
+        .link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 
 <body>
