@@ -151,6 +151,7 @@
         .btn:disabled {
             background: #ccc;
             cursor: not-allowed;
+            transform: none;
         }
 
         .form-group {
@@ -210,6 +211,11 @@
 
         .proposal-card.votable {
             border-color: #4CAF50;
+            background: #f1f8f4;
+        }
+
+        .proposal-card.voted {
+            border-color: #2e7d32;
             background: #f1f8f4;
         }
 
@@ -273,6 +279,7 @@
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
+            font-size: 14px;
         }
 
         .vote-yes {
@@ -280,7 +287,7 @@
             color: white;
         }
 
-        .vote-yes:hover {
+        .vote-yes:hover:not(:disabled) {
             background: #45a049;
             transform: scale(1.05);
         }
@@ -290,7 +297,7 @@
             color: white;
         }
 
-        .vote-no:hover {
+        .vote-no:hover:not(:disabled) {
             background: #da190b;
             transform: scale(1.05);
         }
@@ -300,7 +307,7 @@
             color: white;
         }
 
-        .vote-abstain:hover {
+        .vote-abstain:hover:not(:disabled) {
             background: #e68900;
             transform: scale(1.05);
         }
@@ -310,9 +317,42 @@
             color: white;
         }
 
-        .vote-veto:hover {
+        .vote-veto:hover:not(:disabled) {
             background: #7b1fa2;
             transform: scale(1.05);
+        }
+
+        .vote-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .voted-badge {
+            margin-top: 15px;
+            padding: 15px;
+            background: #e8f5e9;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+        }
+
+        .voted-badge-header {
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .voted-badge-option {
+            color: #1b5e20;
+            font-size: 15px;
+            margin: 5px 0;
+        }
+
+        .voted-badge-tx {
+            font-size: 13px;
+            color: #666;
+            margin-top: 8px;
         }
 
         .wallet-info {
@@ -478,6 +518,38 @@
         let provider, signer, walletAddress;
         let currentLang = localStorage.getItem('helios-lang') || 'en';
         let currentTab = 'vote';
+        let voteHistory = {};
+
+        // Vote History Functions
+        function getVoteStorageKey() {
+            if (!walletAddress) return null;
+            return `helios-votes-${walletAddress.toLowerCase()}`;
+        }
+
+        function loadVoteHistory() {
+            const key = getVoteStorageKey();
+            if (!key) return {};
+            const saved = localStorage.getItem(key);
+            return saved ? JSON.parse(saved) : {};
+        }
+
+        function saveVote(proposalId, option, txHash) {
+            const key = getVoteStorageKey();
+            if (!key) return;
+
+            const optionNames = ['', 'YES', 'ABSTAIN', 'NO', 'VETO'];
+            voteHistory[proposalId] = {
+                option,
+                txHash,
+                timestamp: Date.now(),
+                optionName: optionNames[option]
+            };
+            localStorage.setItem(key, JSON.stringify(voteHistory));
+        }
+
+        function hasVoted(proposalId) {
+            return voteHistory[proposalId] !== undefined;
+        }
 
         const translations = {
             en: {
@@ -510,7 +582,9 @@
                 proposalSuccess: 'PROPOSAL CREATED!',
                 proposal: 'Proposal',
                 vote: 'Vote',
-                proposalId: 'Proposal ID',
+                alreadyVoted: '✅ Already Voted',
+                yourVote: 'Your Vote',
+                viewTx: 'View TX',
                 checkDashboard: 'Check Dashboard',
                 tagUnlock: 'PROPOSAL_MASTER tag will unlock within 1-24h!',
                 errorMetaMask: '❌ MetaMask not installed!<br>Download at: <a href="https://metamask.io" target="_blank" class="link">metamask.io</a>',
@@ -564,7 +638,9 @@
                 proposalSuccess: 'TẠO ĐỀ XUẤT THÀNH CÔNG!',
                 proposal: 'Đề Xuất',
                 vote: 'Phiếu',
-                proposalId: 'Mã Đề Xuất',
+                alreadyVoted: '✅ Đã Bỏ Phiếu',
+                yourVote: 'Phiếu Của Bạn',
+                viewTx: 'Xem TX',
                 checkDashboard: 'Kiểm Tra Dashboard',
                 tagUnlock: 'Tag PROPOSAL_MASTER sẽ mở khóa trong 1-24h!',
                 errorMetaMask: '❌ MetaMask chưa được cài đặt!<br>Tải tại: <a href="https://metamask.io" target="_blank" class="link">metamask.io</a>',
@@ -718,6 +794,9 @@
 
                 const balance = await provider.getBalance(walletAddress);
 
+                // Load vote history for this wallet
+                voteHistory = loadVoteHistory();
+
                 walletInfo.innerHTML = `
                     <div class="wallet-info">
                         <div style="margin-bottom: 10px;">
@@ -800,9 +879,11 @@
                 const id = proposal.id;
                 const isVotable = proposal.statusCode === 'PROPOSAL_STATUS_VOTING_PERIOD';
                 const status = getStatusBadge(proposal.statusCode);
+                const voted = hasVoted(id);
+                const voteInfo = voted ? voteHistory[id] : null;
 
                 return `
-                    <div class="proposal-card ${isVotable ? 'votable' : ''}">
+                    <div class="proposal-card ${voted ? 'voted' : (isVotable ? 'votable' : '')}">
                         <div class="proposal-header">
                             <div class="proposal-id">${t('proposal')} #${id}</div>
                             <div class="status-badge ${status.class}">${status.text}</div>
@@ -810,14 +891,23 @@
                         <div class="proposal-title">
                             <strong>${proposal.title || t('proposal') + ' ' + id}</strong>
                         </div>
-                        ${isVotable ? `
-                            <div class="vote-options">
+                        ${isVotable ? (
+                        voted ?
+                            `<div class="voted-badge">
+                                <div class="voted-badge-header">${t('alreadyVoted')}</div>
+                                <div class="voted-badge-option">${t('yourVote')}: <strong>${voteInfo.optionName}</strong></div>
+                                <div class="voted-badge-tx">
+                                    <a href="https://explorer.helioschainlabs.org/tx/${voteInfo.txHash}" target="_blank" class="link">${t('viewTx')}</a>
+                                </div>
+                            </div>`
+                            :
+                            `<div class="vote-options">
                                 <button class="vote-btn vote-yes" onclick="voteOnProposal(${id}, 1, this)">✅ YES</button>
                                 <button class="vote-btn vote-abstain" onclick="voteOnProposal(${id}, 2, this)">⚪ ABSTAIN</button>
                                 <button class="vote-btn vote-no" onclick="voteOnProposal(${id}, 3, this)">❌ NO</button>
                                 <button class="vote-btn vote-veto" onclick="voteOnProposal(${id}, 4, this)">🚫 VETO</button>
-                            </div>
-                        ` : `<div style="margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px; text-align: center; color: #999;">${t('votingEnded')}</div>`}
+                            </div>`
+                    ) : `<div style="margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px; text-align: center; color: #999;">${t('votingEnded')}</div>`}
                     </div>
                 `;
             }).join('');
@@ -859,7 +949,6 @@
 
                 showStatus('info', `${t('creatingProposal')}...`);
 
-                // Generate Cosmos message for Text Proposal
                 const address = await signer.getAddress();
                 const msg = JSON.stringify({
                     "@type": "/helios.hyperion.v1.MsgUpdateOutTxTimeout",
@@ -880,10 +969,7 @@
 
                 showStatus('info', `${t('txSent')}: <a href="https://explorer.helioschainlabs.org/tx/${tx.hash}" target="_blank" class="link">${tx.hash.slice(0, 20)}...</a><br>${t('waitingConfirm')}`);
 
-                const receipt = await tx.wait();
-
-                // Extract proposal ID from logs if available
-                const proposalId = receipt.events && receipt.events.length > 0 ? 'Created' : 'Submitted';
+                await tx.wait();
 
                 showStatus('success', `
                     🎉 <strong>${t('proposalSuccess')}</strong><br><br>
@@ -894,7 +980,6 @@
                     💡 ${t('checkDashboard')}: <a href="https://portal.helioschain.network/governance/proposals" target="_blank" class="link">View Proposal</a>
                 `);
 
-                // Clear form
                 document.getElementById('proposalTitle').value = '';
                 document.getElementById('proposalDescription').value = '';
                 document.getElementById('proposalDeposit').value = '10';
@@ -913,7 +998,7 @@
                 return;
             }
 
-            const optionNames = ['', 'YES', 'ABSTAIN', 'NO', 'NO WITH VETO'];
+            const optionNames = ['', 'YES', 'ABSTAIN', 'NO', 'VETO'];
             const originalText = buttonElement.textContent;
 
             try {
@@ -934,6 +1019,9 @@
 
                 await tx.wait();
 
+                // Save vote to history
+                saveVote(proposalId, option, tx.hash);
+
                 showStatus('success', `
                     🎉 <strong>${t('voteSuccess')}</strong><br><br>
                     📋 ${t('proposal')} #${proposalId}<br>
@@ -944,8 +1032,8 @@
                     💡 ${t('checkDashboard')}: <a href="https://testnet.helioschain.network" target="_blank" class="link">testnet.helioschain.network</a>
                 `);
 
-                buttonElement.textContent = '✅ Voted';
-                buttonElement.style.opacity = '0.6';
+                // Reload proposals to show updated state
+                await loadProposals();
 
             } catch (error) {
                 showStatus('error', `${t('errorVote')}: ${error.message}<br><br>${t('checkGas')}`);
