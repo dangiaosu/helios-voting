@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🗳️ Helios Governance Voting</title>
+    <title>🗳️ Helios Governance Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <style>
         * {
@@ -25,12 +25,88 @@
             margin: 0 auto;
         }
 
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
         h1 {
             color: white;
             text-align: center;
-            margin-bottom: 30px;
             font-size: 2.5em;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            flex: 1;
+        }
+
+        .lang-switcher {
+            display: flex;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 5px;
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            background: transparent;
+            color: white;
+        }
+
+        .lang-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .lang-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 5px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            background: transparent;
+            color: white;
+            font-size: 16px;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .card {
@@ -75,6 +151,47 @@
         .btn:disabled {
             background: #ccc;
             cursor: not-allowed;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-hint {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
         }
 
         .proposal-card {
@@ -277,24 +394,80 @@
 
 <body>
     <div class="container">
-        <h1>🗳️ Helios Governance Portal</h1>
+        <div class="header-bar">
+            <div style="width: 100px;"></div>
+            <h1>🗳️ <span id="pageTitle">Helios Governance Portal</span></h1>
+            <div class="lang-switcher">
+                <button class="lang-btn active" data-lang="en" onclick="switchLanguage('en')">EN</button>
+                <button class="lang-btn" data-lang="vi" onclick="switchLanguage('vi')">VN</button>
+            </div>
+        </div>
 
         <div class="card">
-            <h2 style="margin-bottom: 15px;">🔐 Wallet Connection</h2>
+            <h2 style="margin-bottom: 15px;" id="walletTitle">🔐 Wallet Connection</h2>
             <button id="connectBtn" class="btn btn-primary" onclick="connectWallet()">Connect Wallet</button>
             <div id="walletInfo"></div>
         </div>
 
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2>📋 Governance Proposals</h2>
-                <button id="refreshBtn" class="btn btn-secondary" onclick="loadProposals()"
-                    style="width: auto; padding: 10px 20px;" disabled>🔄 Refresh</button>
-            </div>
-            <div id="proposalsContainer">
-                <div style="text-align: center; padding: 40px; color: #999;">
-                    👆 Connect wallet để xem proposals
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('vote')" id="tabVote">🗳️ Vote</button>
+            <button class="tab-btn" onclick="switchTab('create')" id="tabCreate">✨ Create Proposal</button>
+        </div>
+
+        <!-- Vote Tab -->
+        <div id="voteTab" class="tab-content active">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2 id="proposalsTitle">📋 Governance Proposals</h2>
+                    <button id="refreshBtn" class="btn btn-secondary" onclick="loadProposals()"
+                        style="width: auto; padding: 10px 20px;" disabled>🔄 <span
+                            id="refreshText">Refresh</span></button>
                 </div>
+                <div id="proposalsContainer">
+                    <div style="text-align: center; padding: 40px; color: #999;" id="proposalPlaceholder">
+                        👆 Connect wallet to view proposals
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Proposal Tab -->
+        <div id="createTab" class="tab-content">
+            <div class="card">
+                <h2 id="createTitle" style="margin-bottom: 20px;">✨ Create New Proposal</h2>
+
+                <div class="form-group">
+                    <label class="form-label" id="labelProposalType">Proposal Type</label>
+                    <select class="form-select" id="proposalType">
+                        <option value="text">Text Proposal</option>
+                    </select>
+                    <div class="form-hint" id="hintProposalType">Standard governance text proposal</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" id="labelTitle">Title *</label>
+                    <input type="text" class="form-input" id="proposalTitle" placeholder="Enter proposal title"
+                        maxlength="200">
+                    <div class="form-hint" id="hintTitle">Max 200 characters</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" id="labelDescription">Description *</label>
+                    <textarea class="form-textarea" id="proposalDescription"
+                        placeholder="Enter detailed description of your proposal"></textarea>
+                    <div class="form-hint" id="hintDescription">Explain your proposal in detail</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" id="labelDeposit">Initial Deposit (HLS) *</label>
+                    <input type="number" class="form-input" id="proposalDeposit" placeholder="10" min="1" step="0.1"
+                        value="10">
+                    <div class="form-hint" id="hintDeposit">Minimum deposit required to submit proposal</div>
+                </div>
+
+                <button class="btn btn-primary" id="submitProposalBtn" onclick="createProposal()" disabled>
+                    <span id="submitText">Submit Proposal</span>
+                </button>
             </div>
         </div>
 
@@ -303,6 +476,119 @@
 
     <script>
         let provider, signer, walletAddress;
+        let currentLang = localStorage.getItem('helios-lang') || 'en';
+        let currentTab = 'vote';
+
+        const translations = {
+            en: {
+                pageTitle: 'Helios Governance Portal',
+                walletTitle: '🔐 Wallet Connection',
+                connectBtn: 'Connect Wallet',
+                connecting: '⏳ Connecting...',
+                connected: '✅ Connected',
+                tabVote: '🗳️ Vote',
+                tabCreate: '✨ Create Proposal',
+                proposalsTitle: '📋 Governance Proposals',
+                refreshText: 'Refresh',
+                proposalPlaceholder: '👆 Connect wallet to view proposals',
+                createTitle: '✨ Create New Proposal',
+                labelProposalType: 'Proposal Type',
+                labelTitle: 'Title *',
+                labelDescription: 'Description *',
+                labelDeposit: 'Initial Deposit (HLS) *',
+                hintProposalType: 'Standard governance text proposal',
+                hintTitle: 'Max 200 characters',
+                hintDescription: 'Explain your proposal in detail',
+                hintDeposit: 'Minimum deposit required to submit proposal',
+                submitText: 'Submit Proposal',
+                submitting: '⏳ Submitting...',
+                loading: 'Loading proposals...',
+                noProposals: 'No Proposals',
+                noProposalsDesc: 'There are currently no governance proposals.',
+                votingEnded: 'Voting ended',
+                voteSuccess: 'VOTE SUCCESSFUL!',
+                proposalSuccess: 'PROPOSAL CREATED!',
+                proposal: 'Proposal',
+                vote: 'Vote',
+                proposalId: 'Proposal ID',
+                checkDashboard: 'Check Dashboard',
+                tagUnlock: 'PROPOSAL_MASTER tag will unlock within 1-24h!',
+                errorMetaMask: '❌ MetaMask not installed!<br>Download at: <a href="https://metamask.io" target="_blank" class="link">metamask.io</a>',
+                errorConnect: '❌ Connection error',
+                switchingNetwork: '⏳ Switching to Helios network...',
+                errorAddNetwork: '❌ Cannot add Helios network',
+                errorSwitchNetwork: '❌ Cannot switch network',
+                walletConnected: '✅ Wallet Connected',
+                balance: '💰 Balance',
+                txSent: '⏳ Transaction sent! TX Hash',
+                waitingConfirm: 'Waiting for confirmation...',
+                sending: '⏳ Sending vote',
+                creatingProposal: '⏳ Creating proposal',
+                for: 'for',
+                errorVote: '❌ Vote error',
+                errorProposal: '❌ Proposal creation error',
+                checkGas: '💡 Check if wallet has enough HLS for gas',
+                connectFirst: '❌ Please connect wallet first!',
+                fillRequired: '❌ Please fill all required fields!',
+                loaded: '✅ Loaded',
+                proposals: 'proposals',
+                errorLoading: '❌ Error loading proposals'
+            },
+            vi: {
+                pageTitle: 'Cổng Quản Trị Helios',
+                walletTitle: '🔐 Kết Nối Ví',
+                connectBtn: 'Kết Nối Ví',
+                connecting: '⏳ Đang kết nối...',
+                connected: '✅ Đã Kết Nối',
+                tabVote: '🗳️ Bỏ Phiếu',
+                tabCreate: '✨ Tạo Đề Xuất',
+                proposalsTitle: '📋 Đề Xuất Quản Trị',
+                refreshText: 'Làm Mới',
+                proposalPlaceholder: '👆 Kết nối ví để xem đề xuất',
+                createTitle: '✨ Tạo Đề Xuất Mới',
+                labelProposalType: 'Loại Đề Xuất',
+                labelTitle: 'Tiêu Đề *',
+                labelDescription: 'Mô Tả *',
+                labelDeposit: 'Đặt Cọc Ban Đầu (HLS) *',
+                hintProposalType: 'Đề xuất văn bản quản trị chuẩn',
+                hintTitle: 'Tối đa 200 ký tự',
+                hintDescription: 'Giải thích đề xuất của bạn chi tiết',
+                hintDeposit: 'Số tiền đặt cọc tối thiểu để gửi đề xuất',
+                submitText: 'Gửi Đề Xuất',
+                submitting: '⏳ Đang gửi...',
+                loading: 'Đang tải đề xuất...',
+                noProposals: 'Không Có Đề Xuất',
+                noProposalsDesc: 'Hiện tại chưa có đề xuất quản trị nào.',
+                votingEnded: 'Bỏ phiếu đã kết thúc',
+                voteSuccess: 'BỎ PHIẾU THÀNH CÔNG!',
+                proposalSuccess: 'TẠO ĐỀ XUẤT THÀNH CÔNG!',
+                proposal: 'Đề Xuất',
+                vote: 'Phiếu',
+                proposalId: 'Mã Đề Xuất',
+                checkDashboard: 'Kiểm Tra Dashboard',
+                tagUnlock: 'Tag PROPOSAL_MASTER sẽ mở khóa trong 1-24h!',
+                errorMetaMask: '❌ MetaMask chưa được cài đặt!<br>Tải tại: <a href="https://metamask.io" target="_blank" class="link">metamask.io</a>',
+                errorConnect: '❌ Lỗi kết nối',
+                switchingNetwork: '⏳ Đang chuyển sang mạng Helios...',
+                errorAddNetwork: '❌ Không thể thêm mạng Helios',
+                errorSwitchNetwork: '❌ Không thể chuyển mạng',
+                walletConnected: '✅ Ví Đã Kết Nối',
+                balance: '💰 Số Dư',
+                txSent: '⏳ Giao dịch đã gửi! TX Hash',
+                waitingConfirm: 'Đang đợi xác nhận...',
+                sending: '⏳ Đang gửi phiếu',
+                creatingProposal: '⏳ Đang tạo đề xuất',
+                for: 'cho',
+                errorVote: '❌ Lỗi bỏ phiếu',
+                errorProposal: '❌ Lỗi tạo đề xuất',
+                checkGas: '💡 Kiểm tra xem ví có đủ HLS để trả gas không',
+                connectFirst: '❌ Vui lòng kết nối ví trước!',
+                fillRequired: '❌ Vui lòng điền đầy đủ thông tin bắt buộc!',
+                loaded: '✅ Đã tải',
+                proposals: 'đề xuất',
+                errorLoading: '❌ Lỗi khi tải đề xuất'
+            }
+        };
 
         const HELIOS_NETWORK = {
             chainId: '0xa410',
@@ -313,18 +599,81 @@
         };
         const GOV_CONTRACT = '0x0000000000000000000000000000000000000805';
 
+        function t(key) {
+            return translations[currentLang][key] || key;
+        }
+
+        function switchLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('helios-lang', lang);
+
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+
+            updateTexts();
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+
+            document.getElementById('voteTab').classList.toggle('active', tab === 'vote');
+            document.getElementById('createTab').classList.toggle('active', tab === 'create');
+
+            document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', (idx === 0 && tab === 'vote') || (idx === 1 && tab === 'create'));
+            });
+        }
+
+        function updateTexts() {
+            document.getElementById('pageTitle').textContent = t('pageTitle');
+            document.getElementById('walletTitle').textContent = t('walletTitle');
+            document.getElementById('tabVote').innerHTML = t('tabVote');
+            document.getElementById('tabCreate').innerHTML = t('tabCreate');
+            document.getElementById('proposalsTitle').textContent = t('proposalsTitle');
+            document.getElementById('refreshText').textContent = t('refreshText');
+            document.getElementById('createTitle').textContent = t('createTitle');
+            document.getElementById('labelProposalType').textContent = t('labelProposalType');
+            document.getElementById('labelTitle').textContent = t('labelTitle');
+            document.getElementById('labelDescription').textContent = t('labelDescription');
+            document.getElementById('labelDeposit').textContent = t('labelDeposit');
+            document.getElementById('hintProposalType').textContent = t('hintProposalType');
+            document.getElementById('hintTitle').textContent = t('hintTitle');
+            document.getElementById('hintDescription').textContent = t('hintDescription');
+            document.getElementById('hintDeposit').textContent = t('hintDeposit');
+            document.getElementById('submitText').textContent = t('submitText');
+
+            const connectBtn = document.getElementById('connectBtn');
+            if (connectBtn.textContent.includes('Connected') || connectBtn.textContent.includes('Kết Nối')) {
+                if (!connectBtn.textContent.includes('✅')) {
+                    connectBtn.textContent = t('connectBtn');
+                }
+            } else {
+                connectBtn.textContent = t('connectBtn');
+            }
+
+            const placeholder = document.getElementById('proposalPlaceholder');
+            if (placeholder) {
+                placeholder.textContent = t('proposalPlaceholder');
+            }
+        }
+
+        window.onload = () => {
+            switchLanguage(currentLang);
+        };
+
         async function connectWallet() {
             const connectBtn = document.getElementById('connectBtn');
             const walletInfo = document.getElementById('walletInfo');
 
             if (typeof window.ethereum === 'undefined') {
-                showStatus('error', '❌ MetaMask chưa được cài đặt!<br>Download tại: <a href="https://metamask.io" target="_blank" class="link">metamask.io</a>');
+                showStatus('error', t('errorMetaMask'));
                 return;
             }
 
             try {
                 connectBtn.disabled = true;
-                connectBtn.textContent = '⏳ Đang kết nối...';
+                connectBtn.textContent = t('connecting');
 
                 await window.ethereum.request({ method: 'eth_requestAccounts' });
                 provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -335,7 +684,7 @@
                 const currentChainId = '0x' + network.chainId.toString(16);
 
                 if (currentChainId !== HELIOS_NETWORK.chainId) {
-                    showStatus('info', '⏳ Đang chuyển sang Helios network...');
+                    showStatus('info', t('switchingNetwork'));
 
                     try {
                         await window.ethereum.request({
@@ -350,15 +699,15 @@
                                     params: [HELIOS_NETWORK],
                                 });
                             } catch (addError) {
-                                showStatus('error', '❌ Không thể thêm Helios network: ' + addError.message);
+                                showStatus('error', t('errorAddNetwork') + ': ' + addError.message);
                                 connectBtn.disabled = false;
-                                connectBtn.textContent = 'Connect Wallet';
+                                connectBtn.textContent = t('connectBtn');
                                 return;
                             }
                         } else {
-                            showStatus('error', '❌ Không thể chuyển network: ' + switchError.message);
+                            showStatus('error', t('errorSwitchNetwork') + ': ' + switchError.message);
                             connectBtn.disabled = false;
-                            connectBtn.textContent = 'Connect Wallet';
+                            connectBtn.textContent = t('connectBtn');
                             return;
                         }
                     }
@@ -372,28 +721,31 @@
                 walletInfo.innerHTML = `
                     <div class="wallet-info">
                         <div style="margin-bottom: 10px;">
-                            <strong>✅ Wallet Connected</strong>
+                            <strong>${t('walletConnected')}</strong>
                             <span class="network-badge">Helios Testnet</span>
                         </div>
                         <div style="font-family: monospace; font-size: 0.9em; word-break: break-all; margin: 10px 0;">
                             📍 ${walletAddress}
                         </div>
                         <div>
-                            💰 Balance: <strong>${ethers.utils.formatEther(balance)} HLS</strong>
+                            ${t('balance')}: <strong>${ethers.utils.formatEther(balance)} HLS</strong>
                         </div>
                     </div>
                 `;
 
-                connectBtn.textContent = '✅ Connected';
+                connectBtn.textContent = t('connected');
                 connectBtn.style.background = '#4CAF50';
                 document.getElementById('refreshBtn').disabled = false;
+                document.getElementById('submitProposalBtn').disabled = false;
 
-                await loadProposals();
+                if (currentTab === 'vote') {
+                    await loadProposals();
+                }
 
             } catch (error) {
-                showStatus('error', `❌ Lỗi kết nối: ${error.message}`);
+                showStatus('error', `${t('errorConnect')}: ${error.message}`);
                 connectBtn.disabled = false;
-                connectBtn.textContent = 'Connect Wallet';
+                connectBtn.textContent = t('connectBtn');
             }
         }
 
@@ -402,7 +754,7 @@
             const refreshBtn = document.getElementById('refreshBtn');
 
             refreshBtn.disabled = true;
-            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Đang tải proposals...</p></div>';
+            container.innerHTML = `<div class="loading"><div class="spinner"></div><p>${t('loading')}</p></div>`;
 
             try {
                 const response = await fetch('https://testnet1.helioschainlabs.org/', {
@@ -423,19 +775,19 @@
                     container.innerHTML = `
                         <div style="text-align: center; padding: 40px; color: #666;">
                             <div style="font-size: 3em; margin-bottom: 20px;">📭</div>
-                            <h3>Không có proposals</h3>
-                            <p style="margin-top: 10px;">Hiện tại chưa có governance proposal nào.</p>
+                            <h3>${t('noProposals')}</h3>
+                            <p style="margin-top: 10px;">${t('noProposalsDesc')}</p>
                         </div>
                     `;
                     return;
                 }
 
                 displayProposals(proposals);
-                showStatus('success', `✅ Đã tải ${proposals.length} proposals`);
+                showStatus('success', `${t('loaded')} ${proposals.length} ${t('proposals')}`);
 
             } catch (error) {
-                container.innerHTML = `<div class="status status-error">❌ Lỗi: ${error.message}</div>`;
-                showStatus('error', `❌ Lỗi khi tải proposals: ${error.message}`);
+                container.innerHTML = `<div class="status status-error">❌ ${t('errorLoading')}: ${error.message}</div>`;
+                showStatus('error', `❌ ${t('errorLoading')}: ${error.message}`);
             } finally {
                 refreshBtn.disabled = false;
             }
@@ -452,11 +804,11 @@
                 return `
                     <div class="proposal-card ${isVotable ? 'votable' : ''}">
                         <div class="proposal-header">
-                            <div class="proposal-id">Proposal #${id}</div>
+                            <div class="proposal-id">${t('proposal')} #${id}</div>
                             <div class="status-badge ${status.class}">${status.text}</div>
                         </div>
                         <div class="proposal-title">
-                            <strong>${proposal.title || 'Proposal ' + id}</strong>
+                            <strong>${proposal.title || t('proposal') + ' ' + id}</strong>
                         </div>
                         ${isVotable ? `
                             <div class="vote-options">
@@ -465,7 +817,7 @@
                                 <button class="vote-btn vote-no" onclick="voteOnProposal(${id}, 3, this)">❌ NO</button>
                                 <button class="vote-btn vote-veto" onclick="voteOnProposal(${id}, 4, this)">🚫 VETO</button>
                             </div>
-                        ` : '<div style="margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px; text-align: center; color: #999;">Voting đã kết thúc</div>'}
+                        ` : `<div style="margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px; text-align: center; color: #999;">${t('votingEnded')}</div>`}
                     </div>
                 `;
             }).join('');
@@ -483,9 +835,81 @@
             return map[status] || { text: status, class: 'status-other' };
         }
 
+        async function createProposal() {
+            if (!signer) {
+                showStatus('error', t('connectFirst'));
+                return;
+            }
+
+            const title = document.getElementById('proposalTitle').value.trim();
+            const description = document.getElementById('proposalDescription').value.trim();
+            const deposit = document.getElementById('proposalDeposit').value;
+
+            if (!title || !description || !deposit) {
+                showStatus('error', t('fillRequired'));
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitProposalBtn');
+            const originalText = submitBtn.innerHTML;
+
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = t('submitting');
+
+                showStatus('info', `${t('creatingProposal')}...`);
+
+                // Generate Cosmos message for Text Proposal
+                const address = await signer.getAddress();
+                const msg = JSON.stringify({
+                    "@type": "/helios.hyperion.v1.MsgUpdateOutTxTimeout",
+                    "signer": address,
+                    "chain_id": 11155111,
+                    "target_batch_timeout": 3600000,
+                    "target_outgoing_tx_timeout": 3600000
+                });
+
+                const depositAmount = ethers.utils.parseEther(deposit);
+
+                const abi = ['function hyperionProposal(string title, string description, string msg, uint256 initialDepositAmount) external payable returns (uint64)'];
+                const contract = new ethers.Contract(GOV_CONTRACT, abi, signer);
+
+                const tx = await contract.hyperionProposal(title, description, msg, depositAmount, {
+                    value: depositAmount
+                });
+
+                showStatus('info', `${t('txSent')}: <a href="https://explorer.helioschainlabs.org/tx/${tx.hash}" target="_blank" class="link">${tx.hash.slice(0, 20)}...</a><br>${t('waitingConfirm')}`);
+
+                const receipt = await tx.wait();
+
+                // Extract proposal ID from logs if available
+                const proposalId = receipt.events && receipt.events.length > 0 ? 'Created' : 'Submitted';
+
+                showStatus('success', `
+                    🎉 <strong>${t('proposalSuccess')}</strong><br><br>
+                    📋 ${t('proposal')}: <strong>${title}</strong><br>
+                    💰 Deposit: <strong>${deposit} HLS</strong><br>
+                    🔗 TX: <a href="https://explorer.helioschainlabs.org/tx/${tx.hash}" target="_blank" class="link">View on Explorer</a><br>
+                    <br>
+                    💡 ${t('checkDashboard')}: <a href="https://portal.helioschain.network/governance/proposals" target="_blank" class="link">View Proposal</a>
+                `);
+
+                // Clear form
+                document.getElementById('proposalTitle').value = '';
+                document.getElementById('proposalDescription').value = '';
+                document.getElementById('proposalDeposit').value = '10';
+
+            } catch (error) {
+                showStatus('error', `${t('errorProposal')}: ${error.message}<br><br>${t('checkGas')}`);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+
         async function voteOnProposal(proposalId, option, buttonElement) {
             if (!signer) {
-                showStatus('error', '❌ Vui lòng connect wallet trước!');
+                showStatus('error', t('connectFirst'));
                 return;
             }
 
@@ -496,7 +920,7 @@
                 buttonElement.disabled = true;
                 buttonElement.textContent = '⏳...';
 
-                showStatus('info', `⏳ Đang gửi vote ${optionNames[option]} cho Proposal #${proposalId}...`);
+                showStatus('info', `${t('sending')} ${optionNames[option]} ${t('for')} ${t('proposal')} #${proposalId}...`);
 
                 const abi = ['function vote(address voter, uint64 proposalId, uint8 option, string metadata) external returns (bool)'];
                 const contract = new ethers.Contract(GOV_CONTRACT, abi, signer);
@@ -506,25 +930,25 @@
 
                 const tx = await contract.vote(voterAddress, proposalId, option, metadata);
 
-                showStatus('info', `⏳ Transaction đã gửi! TX Hash: <a href="https://explorer.helioschainlabs.org/tx/${tx.hash}" target="_blank" class="link">${tx.hash.slice(0, 20)}...</a><br>Đang đợi confirm...`);
+                showStatus('info', `${t('txSent')}: <a href="https://explorer.helioschainlabs.org/tx/${tx.hash}" target="_blank" class="link">${tx.hash.slice(0, 20)}...</a><br>${t('waitingConfirm')}`);
 
                 await tx.wait();
 
                 showStatus('success', `
-                    🎉 <strong>VOTE THÀNH CÔNG!</strong><br><br>
-                    📋 Proposal #${proposalId}<br>
-                    🎯 Vote: <strong>${optionNames[option]}</strong><br>
+                    🎉 <strong>${t('voteSuccess')}</strong><br><br>
+                    📋 ${t('proposal')} #${proposalId}<br>
+                    🎯 ${t('vote')}: <strong>${optionNames[option]}</strong><br>
                     🔗 TX: <a href="https://explorer.helioschainlabs.org/tx/${tx.hash}" target="_blank" class="link">View on Explorer</a><br>
                     <br>
-                    🏆 <strong>PROPOSAL_MASTER tag sẽ unlock trong 1-24h!</strong><br>
-                    💡 Check Dashboard: <a href="https://testnet.helioschain.network" target="_blank" class="link">testnet.helioschain.network</a>
+                    🏆 <strong>${t('tagUnlock')}</strong><br>
+                    💡 ${t('checkDashboard')}: <a href="https://testnet.helioschain.network" target="_blank" class="link">testnet.helioschain.network</a>
                 `);
 
                 buttonElement.textContent = '✅ Voted';
                 buttonElement.style.opacity = '0.6';
 
             } catch (error) {
-                showStatus('error', `❌ Lỗi vote: ${error.message}<br><br>💡 Kiểm tra xem wallet có đủ HLS để trả gas không`);
+                showStatus('error', `${t('errorVote')}: ${error.message}<br><br>${t('checkGas')}`);
                 buttonElement.disabled = false;
                 buttonElement.textContent = originalText;
             }
